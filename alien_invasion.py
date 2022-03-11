@@ -8,6 +8,7 @@ from setting import Settings
 from game_stats import GameStats
 from button import Button
 from scoreboad import Scoreboard
+from text import Text
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -34,6 +35,9 @@ class AlienInvasion:
         # 创建统计信息及计分板
         self.stats = GameStats(self)  # 创建游戏统计类实例
         self.sb = Scoreboard(self)  # 创建计分板实例
+
+        # 创建帮助信息
+        self.help_text = Text(self)
 
         pygame.display.set_caption("Alien Invasion")  # 游戏名
         self.ship = Ship(self)  # 创建飞船类实例，实参self指向当前实例
@@ -68,9 +72,9 @@ class AlienInvasion:
     def _check_play_button(self, mouse_pos):
         """在玩家点击按钮时开始游戏"""
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
-        if button_clicked and not self.stats.game_active:  # 鼠标单击的位置在play按钮的rect内 且 游戏处于未开始状态 开始游戏
+        if button_clicked and not self.stats.game_active:  # 鼠标单击的位置在play按钮的rect内 且 游戏处于未开始状态 则开始游戏
             self.stats.reset_stats()  # 重置游戏统计信息（几次机会和几分）
-            self.settings.initialize_dynamic_settings()  # 重置游戏设置
+            self.settings.initialize_dynamic_settings()  # 重置游戏动态设置
             self.stats.game_active = True  # 开始游戏
             self.sb.pre_score()  # 准备得分信息
             self.sb.pre_level()  # 准备等级信息
@@ -199,7 +203,6 @@ class AlienInvasion:
         """当外星人与飞船碰撞响应"""
         self.stats.ships_left -= 1  # 少一艘飞船
         self.sb.pre_ships()  # 显示在左上角
-        print(self.stats.ships_left)
         if self.stats.ships_left > 0:
             self.aliens.empty()  # 清除外星人
             self.bullets.empty()  # 清除子弹
@@ -209,22 +212,25 @@ class AlienInvasion:
         else:
             with open("data/highest_grade.json","w") as f:
                 json.dump(self.stats.highest_score, f)  # 写入最高得分
+            sleep(2)  # 暂停一下
             self.stats.game_active = False
             pygame.mouse.set_visible(True)  # 游戏结束，鼠标出现
 
     def _update_screen(self):
         """更新屏幕上的图像"""
         self.screen.fill(self.settings.bg_color)  # 每次循环都重新绘制屏幕
-        self.ship.blitme()  # 在屏幕上绘制飞船
-        for bullet in self.bullets.sprites():  # 遍历所有子弹并绘制
-            bullet.draw_bullet()
-        self.aliens.draw(self.screen)  # 在屏幕上绘制外星人
+        if self.stats.game_active:  # 游戏开始时才显示内容
+            self.ship.blitme()  # 在屏幕上绘制飞船
+            for bullet in self.bullets.sprites():  # 遍历所有子弹并绘制
+                bullet.draw_bullet()
+            self.aliens.draw(self.screen)  # 在屏幕上绘制外星人
 
-        self.sb.show_score()  # 显示得分等信息
+            self.sb.show_score()  # 显示得分等信息
 
-        # 如果游戏处于非活动状态，绘制Play按钮
+        # 如果游戏处于非活动状态，绘制Play按钮和帮助信息
         if not  self.stats.game_active:
             self.play_button.draw_button()
+            self.help_text.show_text()
 
         pygame.display.flip()  # 让最近绘制的屏幕可见
 
