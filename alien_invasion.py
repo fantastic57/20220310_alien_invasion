@@ -1,4 +1,5 @@
 import sys
+import json
 from time import sleep
 
 import pygame
@@ -206,6 +207,8 @@ class AlienInvasion:
             self.ship.centre_ship()  # 飞船放回到屏幕底部中央，等于重新开始
             sleep(0.5)  # 暂停一下
         else:
+            with open("data/highest_grade.json","w") as f:
+                json.dump(self.stats.highest_score, f)  # 写入最高得分
             self.stats.game_active = False
             pygame.mouse.set_visible(True)  # 游戏结束，鼠标出现
 

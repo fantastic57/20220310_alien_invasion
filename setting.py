@@ -25,7 +25,7 @@ class Settings:
         """初始化动态参数"""
         self.ship_speed = 1.5
         self.bullet_speed = 1.5
-        self.alien_speed = 0.2  # 水平移动速度
+        self.alien_speed = 0.2  # 外星人水平移动速度
         self.fleet_direction = 1  # 1为右移，-1为左移
         self.alien_points = 10  # 每个外星人多少分
 
